@@ -22,11 +22,11 @@
 ****************************************************************************
 */
 //-----------------Calling libraries needed to run-----------//
-#include <Wire.h> // I2C
-#include <SPI.h> // for OLED
-#include <Tweakly.h>
+#include <Wire.h> // for I2C.
+#include <SPI.h> // for OLED.
+#include <Tweakly.h> // for non-blocking (no use of delay()) schedule of tasks and input processing.
 #include "SHSF_Giebel_Throttle.h"
-#include <Adafruit_PWMServoDriver.h> // for 16-Channel Servo Driver
+#include <Adafruit_PWMServoDriver.h> // for 16-Channel Servo Driver.
 //
 //------------------Object Instantiation------------------//
 // U8g2 Contructor List (Picture Loop Page Buffer)
@@ -38,14 +38,15 @@ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver(PWM_I2C_ADDR);
 //-------------------Tweakly---------------------//
 TickTimer timerLogo;
 TickTimer timerRefreshDisplay;
+TickTimer timerTestModeSwitch;
 inputHunter huntThrottleButtons;
 inputHunter huntSoundButton;
 //
 //-----------------GLOBAL VARIABLES-------------------//
 struct cab cabs[NUMBER_OF_CABS];
 struct button soundButton;
-bool blnLogoTimedOut = false; // variable for indicating the logo has timed out
-int intTestValue = 0; // variable for storing the calculated Test input value.
+bool blnLogoTimedOut = false; // variable for indicating the logo has timed out.
+bool blnTestMode = false;// variable for indicating the Test/Operate slide switch position.
 //
 void setup() {
   Serial.begin(COM_BAUD_RATE);
@@ -53,6 +54,7 @@ void setup() {
   Serial.print(ROAD_NAME + " - " + MODULE_NAME + char(10));
   Serial.print(F("Starting setup.\n"));
   //
+  // Initialize I2C.
   Wire.begin();
   //
   // Initialize PWM driver.
@@ -74,7 +76,8 @@ void setup() {
   //
   // Initialize Tweakly.
   timerLogo.attach(8000, []{ blnLogoTimedOut = true; }, DISPATCH_ONCE);
-  timerRefreshDisplay.attach(300, dsplyValues);
+  timerRefreshDisplay.attach(500, dsplyValues);
+  timerTestModeSwitch.attach(500, []{ blnTestMode = testSlideSwitch.read(); });
   huntThrottleButtons.assign("throttle", handleThrottleButtons);
   huntSoundButton.assign("sound", handleSoundButton);
   //

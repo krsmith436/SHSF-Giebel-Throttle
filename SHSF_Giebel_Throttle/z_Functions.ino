@@ -1,94 +1,46 @@
-void driveMotor(int intCab) {
-  // Constrain throttle value to account for max values not being a factor of the step value.
-  cabs[intCab].throttle = constrain(cabs[intCab].throttle, cabs[intCab].maxReverse, cabs[intCab].maxForward);
+// This works for non-negative numbers.
+int roundToMultiple(int toRound, int multiple)
+{
+    return (toRound + (multiple / 2)) / multiple * multiple;
+}
+//
+//
+String getTestMessageText(bool setTestValue) {
+  String strTemp = "";
+  int intTestValue = 0;
+  int intTestCase = 0;
   //
-  // Set direction.
-  if (cabs[intCab].throttle == 0) {cabs[intCab].dir = STOP;}
-  if (cabs[intCab].throttle > 0) {cabs[intCab].dir = FORWARD;}
-  if (cabs[intCab].throttle < 0) {cabs[intCab].dir = REVERSE;}
-  //
-  // Set track direction based on engine facing direction.
-  uint8_t trackDirection = cabs[intCab].dir;
-  if ((cabs[intCab].dir == FORWARD) && (cabs[intCab].engineFacing == WEST)) {
-    trackDirection = REVERSE;
-  }
-  if ((cabs[intCab].dir == REVERSE) && (cabs[intCab].engineFacing == WEST)) {
-    trackDirection = FORWARD;
-  }
-  // Drive motor.
-  switch (trackDirection) {
-    case STOP:
-      pwm.setPin(cabs[intCab].L298ToPin[IN1], 0); // Turns pin fully off.
-Serial.print("Setting STOP PWM ");
-Serial.print(cabs[intCab].L298ToPin[IN1]);
-Serial.println(": OFF");
-      pwm.setPin(cabs[intCab].L298ToPin[IN2], 0); // Turns pin fully off.
-Serial.print("Setting PWM ");
-Serial.print(cabs[intCab].L298ToPin[IN2]);
-Serial.println(": OFF");
-      pwm.setPWM(cabs[intCab].L298ToPin[ENABLE], 0, 4096); // Set PWM fully off.
-Serial.print("Setting PWM ");
-Serial.print(cabs[intCab].L298ToPin[ENABLE]);
-Serial.println(": OFF");
-      break;
-    case FORWARD:
-      pwm.setPWM(cabs[intCab].L298ToPin[IN1], 4096, 0); // Set PWM fully on.
-Serial.print("Setting FORWARD PWM ");
-Serial.print(cabs[intCab].L298ToPin[IN1]);
-Serial.println(": ON");
-      pwm.setPWM(cabs[intCab].L298ToPin[IN2], 0, 4096); // Set PWM fully off.
-Serial.print("Setting PWM ");
-Serial.print(cabs[intCab].L298ToPin[IN2]);
-Serial.println(": OFF");
-      pwm.setPWM(cabs[intCab].L298ToPin[ENABLE], 0, cabs[intCab].throttle); // Set PWM.
-Serial.print("Setting PWM ");
-Serial.print(cabs[intCab].L298ToPin[ENABLE]);
-Serial.print(": ");
-Serial.println(cabs[intCab].throttle);
-      break;
-    case REVERSE:
-      pwm.setPin(cabs[intCab].L298ToPin[IN1], 0); // Turns pin fully off.
-Serial.print("Setting REVERSE PWM ");
-Serial.print(cabs[intCab].L298ToPin[IN1]);
-Serial.println(": OFF");
-      pwm.setPin(cabs[intCab].L298ToPin[IN2], 4096); // Turns pin fully on.
-Serial.print("Setting PWM ");
-Serial.print(cabs[intCab].L298ToPin[IN2]);
-Serial.println(": ON");
-      pwm.setPWM(cabs[intCab].L298ToPin[ENABLE], 0, abs(cabs[intCab].throttle)); // Set PWM.
-Serial.print("Setting PWM ");
-Serial.print(cabs[intCab].L298ToPin[ENABLE]);
-Serial.print(": ");
-Serial.println(cabs[intCab].throttle);
+  switch (intTestCase) {
+    case 0: // PWM Frequency
+      intTestValue = map(analogRead(A1), 0, 1023, 20, 200);
+      intTestValue = roundToMultiple(intTestValue,10);
+      strTemp = "PWM Fq [Hz]: ";
+      strTemp.concat(intTestValue);
+      if (setTestValue) {
+        pwm.setPWMFreq(intTestValue);
+      }
       break;
   }
+  return strTemp;
 }
 //
 //
 void handleSoundButton(int curPin) {
   unsigned long currentMillis = millis();
   if ((currentMillis - soundButton.previousMillis) >= soundButton.interval) {
-//    bool swTest = testSlideSwitch.read();
-    if (testSlideSwitch.read()) { // Operate Mode.
+    if (!blnTestMode) {
+    // Operate Mode.
       Wire.beginTransmission(SOUND_I2C_ADDR);
       Wire.write(1); // 1 = Request for Whistle/Horn on Smiths Valley device.
       Wire.endTransmission(); // this is what actually sends the data.
     }
-    else { // Test Mode.
-      pwm.setPWMFreq(intTestValue);
-      //
-      Serial.print (F("PWM Fq [Hz]: "));
-      Serial.println(intTestValue);
+    else {
+    // Test Mode.
+      Serial.println(getTestMessageText(true)); // Set the test value.
     }
     //
     soundButton.previousMillis = currentMillis;
   }
-}
-//
-// This works for non-negative numbers.
-int roundToMultiple(int toRound, int multiple)
-{
-    return (toRound + (multiple / 2)) / multiple * multiple;
 }
 //
 //
@@ -102,8 +54,6 @@ void handleThrottleButtons(int curPin) {
           case STOP:
             if ((currentMillis - cabs[i].buttonPreviousMillis[STOP]) >= cabs[i].buttonInterval){
               cabs[i].throttle = 0;
-              //
-              driveMotor(i);
               //
               cabs[i].buttonPreviousMillis[STOP] = currentMillis;
             }
@@ -120,8 +70,6 @@ void handleThrottleButtons(int curPin) {
                   cabs[i].throttle += cabs[i].stepValue;
                 }
                 //
-                driveMotor(i);
-                //
                 cabs[i].buttonPreviousMillis[FORWARD] = currentMillis;
             }
             break;
@@ -137,8 +85,6 @@ void handleThrottleButtons(int curPin) {
                   cabs[i].throttle -= cabs[i].stepValue;
                 }
                 //
-                driveMotor(i);
-                //
                 cabs[i].buttonPreviousMillis[REVERSE] = currentMillis;
             }
             break;
@@ -146,11 +92,49 @@ void handleThrottleButtons(int curPin) {
             cabs[i].throttle = 0;
             String message = stringAssembler("Pin %p does not exist in handleThrottleButtons.\n", curPin);
             Serial.println(message);
-            break;
+            return;
         }
+        // Constrain throttle value to account for max values not being a factor of the step value.
+        cabs[i].throttle = constrain(cabs[i].throttle, cabs[i].maxReverse, cabs[i].maxForward);
+        //
+        // Set direction.
+        if (cabs[i].throttle == 0) {cabs[i].dir = STOP;}
+        if (cabs[i].throttle > 0) {cabs[i].dir = FORWARD;}
+        if (cabs[i].throttle < 0) {cabs[i].dir = REVERSE;}
+        //
+        driveMotor(i);
       }
     }
   }
+}
+//
+//
+void driveMotor(int intCab) {
+  //
+  // Set track direction based on engine facing direction.
+  uint8_t trackDirection = cabs[intCab].dir;
+  if ((cabs[intCab].dir == FORWARD) && (cabs[intCab].engineFacing == WEST)) {
+    trackDirection = REVERSE;
+  }
+  if ((cabs[intCab].dir == REVERSE) && (cabs[intCab].engineFacing == WEST)) {
+    trackDirection = FORWARD;
+  }
+  // Drive motor.
+  switch (trackDirection) {
+    case STOP:
+      pwm.setPWM(cabs[intCab].L298ToPin[IN1], 0, 4096); // Turns pin fully off.
+      pwm.setPWM(cabs[intCab].L298ToPin[IN2], 0, 4096); // Turns pin fully off.
+      break;
+    case FORWARD:
+      pwm.setPWM(cabs[intCab].L298ToPin[IN1], 4096, 0); // Set PWM fully on.
+      pwm.setPWM(cabs[intCab].L298ToPin[IN2], 0, 4096); // Set PWM fully off.
+      break;
+    case REVERSE:
+      pwm.setPWM(cabs[intCab].L298ToPin[IN1], 0, 4096); // Turns pin fully off.
+      pwm.setPWM(cabs[intCab].L298ToPin[IN2], 4096, 0); // Turns pin fully on.
+      break;
+  }
+  pwm.setPWM(cabs[intCab].L298ToPin[ENABLE], 0, abs(cabs[intCab].throttle)); // Set PWM.
 }
 //
 //
@@ -215,12 +199,16 @@ void dsplyValues(void) {
         u8g2.print(strTemp);
       }
       //
-//strTemp = stringAssembler("Pin %p does .\n", rh);
-      intTestValue = map(analogRead(A1), 0, 1023, 20, 200);
-      intTestValue = roundToMultiple(intTestValue,10);
-      strTemp = "PWM Fq [Hz]: ";
-      strTemp.concat(intTestValue);
+      // Bottom line text.
       u8g2.setCursor(0,54);
+      if (!blnTestMode) {
+      // Operate Mode.
+        strTemp = stringAssembler("Pin %p does not exist.\n", rh);
+      }
+      else {
+      // Test Mode.
+        strTemp = getTestMessageText(false);
+      }
       u8g2.print(strTemp);
     } while ( u8g2.nextPage() );
   }
@@ -268,7 +256,7 @@ void setupCabs(void) {
   cabs[CAB_A].cabName = "A";
   cabs[CAB_A].throttle = 0;
   cabs[CAB_A].stepValue = 100;
-  cabs[CAB_A].minForward = 700;
+  cabs[CAB_A].minForward = 600;
   cabs[CAB_A].maxForward = 4095;
   cabs[CAB_A].minReverse = -700;
   cabs[CAB_A].maxReverse = -4095;

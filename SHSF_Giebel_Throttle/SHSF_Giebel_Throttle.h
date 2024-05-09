@@ -7,16 +7,16 @@ String TOWN_NAME = "Smiths Valley";
 String MODULE_NAME = "Giebel Throttle";
 //
 const uint8_t NUMBER_OF_CABS = 2;
-const uint8_t CAB_A = 0;
-const uint8_t CAB_B = 1;
+const uint8_t CAB_A = 0; // array index for cabs.
+const uint8_t CAB_B = 1; // array index for cabs.
 const uint8_t STOP = 0;
 const uint8_t FORWARD = 1;
 const uint8_t REVERSE = 2;
 const uint8_t EAST = 1;
 const uint8_t WEST = 2;
-const uint8_t ENABLE = 0;
-const uint8_t IN1 = 1;
-const uint8_t IN2 = 2;
+const uint8_t ENABLE = 0; // array index for PWM pins.
+const uint8_t IN1 = 1; // array index for PWM pins.
+const uint8_t IN2 = 2; // array index for PWM pins.
 //
 struct cab {
   String cabName; // engine number and road name.
