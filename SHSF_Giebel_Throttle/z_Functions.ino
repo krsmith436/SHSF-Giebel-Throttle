@@ -152,16 +152,14 @@ void dsplyValues(void) {
     u8g2.firstPage();
     do {
       u8g2_prepareName(); // Upper case font.
-      strTemp = MODULE_NAME;
-      strTemp.toUpperCase();
       u8g2.setCursor(4,0);
-      u8g2.print(strTemp); // first row.
+      u8g2.print("GIEBEL THROTTLE"); // first row.
       u8g2_prepareValues();
       u8g2.drawStr(0,rh,"Cab  Thrtl  Dir  Face"); // second row.
       //
       for (int i=0; i < NUMBER_OF_CABS; i ++) {
         u8g2.setCursor(c1,(i+2)*rh);
-        u8g2.print(cabs[i].cabName);
+        u8g2.print(cabs[i].engineNumber);
         //
         // Use print(u8x8_u8toa(value, digits)) or print(u8x8_u16toa(value, digits)) 
         // to print numbers with constant width (numbers are prefixed with 0 if required).
@@ -203,7 +201,9 @@ void dsplyValues(void) {
       u8g2.setCursor(0,54);
       if (!blnTestMode) {
       // Operate Mode.
-        strTemp = stringAssembler("Pin %p does not exist.\n", rh);
+        int intFreq = round(pwm.getOscillatorFrequency() / (4096 * pwm.readPrescale())) - 1;
+        strTemp = "PWM [Hz]: ";
+        strTemp.concat(intFreq);
       }
       else {
       // Test Mode.
@@ -216,7 +216,6 @@ void dsplyValues(void) {
 //
 //
 void dsplyLogo(void) {
-  String strTemp = "";
   // picture loop  
   u8g2.firstPage();  
   do {
@@ -253,7 +252,7 @@ void setupButtons(void) {
 //
 //
 void setupCabs(void) {
-  cabs[CAB_A].cabName = "A";
+  strcpy(cabs[CAB_A].engineNumber, "AA");
   cabs[CAB_A].throttle = 0;
   cabs[CAB_A].stepValue = 100;
   cabs[CAB_A].minForward = 600;
@@ -272,7 +271,7 @@ void setupCabs(void) {
   cabs[CAB_A].L298ToPin[0] = L298_ENA;
   cabs[CAB_A].L298ToPin[1] = L298_IN1;
   cabs[CAB_A].L298ToPin[2] = L298_IN2;
-  cabs[CAB_B].cabName = "B";
+  strcpy(cabs[CAB_B].engineNumber, "BB");
   cabs[CAB_B].throttle = 0;
   cabs[CAB_B].stepValue = 1;
   cabs[CAB_B].minForward = 700;

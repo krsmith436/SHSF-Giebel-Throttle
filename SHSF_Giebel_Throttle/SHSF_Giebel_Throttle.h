@@ -1,11 +1,5 @@
 // all # define options should be defined here,  this keeps them together in a nice way.
 //
-String VERSION_ID = "2024-Feb-08";
-//
-String ROAD_NAME = "SH&SF";
-String TOWN_NAME = "Smiths Valley";
-String MODULE_NAME = "Giebel Throttle";
-//
 const uint8_t NUMBER_OF_CABS = 2;
 const uint8_t CAB_A = 0; // array index for cabs.
 const uint8_t CAB_B = 1; // array index for cabs.
@@ -19,7 +13,7 @@ const uint8_t IN1 = 1; // array index for PWM pins.
 const uint8_t IN2 = 2; // array index for PWM pins.
 //
 struct cab {
-  String cabName; // engine number and road name.
+  char engineNumber[7]; // engine number; 6 characters max, leaving 1 for NULL character.
   int throttle; // train’s speed in the range from -255 to 255.
   int stepValue; // amount to increment/decrement train’s speed.
   int minForward; // minimum speed the train needs to start going forward.

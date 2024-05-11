@@ -33,6 +33,9 @@
 // The complete list is available here: https://github.com/olikraus/u8g2/wiki/u8g2setupcpp
 U8G2_SH1106_128X64_NONAME_1_4W_SW_SPI u8g2(/* rotation=*/ U8G2_R0, /* clock=*/ 13, /* data=*/ 11, /* cs=*/ 10, /* dc=*/ 12, /* reset=*/ U8X8_PIN_NONE);
 //
+// Adafruit PCA9685 16-Channel Servo Driver
+// Arduino Library Docs: http://adafruit.github.io/Adafruit-PWM-Servo-Driver-Library/html/class_adafruit___p_w_m_servo_driver.html
+// (https://adafru.it/Au7)
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver(PWM_I2C_ADDR);
 //
 //-------------------Tweakly---------------------//
@@ -51,10 +54,14 @@ bool blnTestMode = false;// variable for indicating the Test/Operate slide switc
 void setup() {
   Serial.begin(COM_BAUD_RATE);
   //
-  Serial.print(ROAD_NAME + " - " + MODULE_NAME + char(10));
-  Serial.print(F("Starting setup.\n"));
+  Serial.println(F("SH&SF - Giebel Throttle"));
+  Serial.println(F("Starting setup."));
   //
-  // Initialize I2C.
+  // Initialize display.
+  u8g2.begin();
+  dsplyLogo();
+  //
+  // Initialize I2C as Host.
   Wire.begin();
   //
   // Initialize PWM driver.
@@ -69,10 +76,6 @@ void setup() {
   //
   // Initialize buttons.
   setupButtons();
-  //
-  // Initialize display.
-  u8g2.begin();
-  dsplyLogo();
   //
   // Initialize Tweakly.
   timerLogo.attach(8000, []{ blnLogoTimedOut = true; }, DISPATCH_ONCE);
