@@ -8,9 +8,8 @@ int roundToMultiple(int toRound, int multiple)
 String getTestMessageText(bool setTestValue) {
   String strTemp = "";
   int intTestValue = 0;
-  int intTestCase = 0;
   //
-  switch (intTestCase) {
+  switch (bytTestNumber) {
     case 0: // PWM Frequency
       intTestValue = map(analogRead(A1), 0, 1023, 20, 200);
       intTestValue = roundToMultiple(intTestValue,10);
@@ -20,6 +19,19 @@ String getTestMessageText(bool setTestValue) {
         pwm.setPWMFreq(intTestValue);
       }
       break;
+    case 1: // Throttle minimum
+      intTestValue = map(analogRead(A1), 0, 1023, 100, 1000);
+      intTestValue = roundToMultiple(intTestValue,10);
+      strTemp = "Min [Steps]: ";
+      strTemp.concat(intTestValue);
+      if (setTestValue) {
+        cabs[CAB_A].minForward = intTestValue;
+        cabs[CAB_A].minReverse = -intTestValue;
+      }
+      break;
+    default:
+      strTemp = "No Test #";
+      strTemp.concat(bytTestNumber);
   }
   return strTemp;
 }
@@ -252,13 +264,13 @@ void setupButtons(void) {
 //
 //
 void setupCabs(void) {
-  strcpy(cabs[CAB_A].engineNumber, "AA");
+  strcpy(cabs[CAB_A].engineNumber, "A");
   cabs[CAB_A].throttle = 0;
   cabs[CAB_A].stepValue = 100;
-  cabs[CAB_A].minForward = 600;
-  cabs[CAB_A].maxForward = 4095;
-  cabs[CAB_A].minReverse = -700;
-  cabs[CAB_A].maxReverse = -4095;
+  cabs[CAB_A].minForward = 400;
+  cabs[CAB_A].maxForward = 2500;
+  cabs[CAB_A].minReverse = -400;
+  cabs[CAB_A].maxReverse = -1500;
   cabs[CAB_A].dir = STOP;
   cabs[CAB_A].engineFacing = STOP;
   cabs[CAB_A].buttonToPin[STOP] = STOP_A_PIN;
@@ -271,7 +283,7 @@ void setupCabs(void) {
   cabs[CAB_A].L298ToPin[0] = L298_ENA;
   cabs[CAB_A].L298ToPin[1] = L298_IN1;
   cabs[CAB_A].L298ToPin[2] = L298_IN2;
-  strcpy(cabs[CAB_B].engineNumber, "BB");
+  strcpy(cabs[CAB_B].engineNumber, "B");
   cabs[CAB_B].throttle = 0;
   cabs[CAB_B].stepValue = 1;
   cabs[CAB_B].minForward = 700;

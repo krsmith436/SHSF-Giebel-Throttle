@@ -49,7 +49,8 @@ inputHunter huntSoundButton;
 struct cab cabs[NUMBER_OF_CABS];
 struct button soundButton;
 bool blnLogoTimedOut = false; // variable for indicating the logo has timed out.
-bool blnTestMode = false;// variable for indicating the Test/Operate slide switch position.
+bool blnTestMode = false; // variable for indicating the Test/Operate slide switch position.
+byte bytTestNumber = 0; // test number to run in Test mode.
 //
 void setup() {
   Serial.begin(COM_BAUD_RATE);

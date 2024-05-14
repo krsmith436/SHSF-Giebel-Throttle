@@ -54,10 +54,8 @@ const uint8_t TEST_SWITCH_PIN = 2;
   Pad soundbuttonA(SOUND_A_PIN, INPUT, "sound");
   //
   //
-  // Test Code
+  // Test Mode
   Pad testSlideSwitch(TEST_SWITCH_PIN, INPUT_PULLUP);
-  Pad ground(14, OUTPUT, "test", LOW);
-  Pad fiveVolt(16, OUTPUT, "test", HIGH);
 //
 //---------------- PWM Channel assignments -----------------
 const uint8_t L298_ENA = 0;
