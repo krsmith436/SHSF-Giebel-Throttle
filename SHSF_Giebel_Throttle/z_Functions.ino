@@ -11,7 +11,7 @@ String getTestMessageText(bool setTestValue) {
   //
   switch (bytTestNumber) {
     case 0: // PWM Frequency
-      intTestValue = map(analogRead(A1), 0, 1023, 20, 200);
+      intTestValue = map(analogRead(TEST_ANALOG_INPUT), 0, 1023, 20, 200);
       intTestValue = roundToMultiple(intTestValue,10);
       strTemp = "PWM Fq [Hz]: ";
       strTemp.concat(intTestValue);
@@ -20,7 +20,7 @@ String getTestMessageText(bool setTestValue) {
       }
       break;
     case 1: // Throttle minimum
-      intTestValue = map(analogRead(A1), 0, 1023, 100, 1000);
+      intTestValue = map(analogRead(TEST_ANALOG_INPUT), 0, 1023, 100, 1000);
       intTestValue = roundToMultiple(intTestValue,10);
       strTemp = "Min [Steps]: ";
       strTemp.concat(intTestValue);
@@ -273,9 +273,9 @@ void setupCabs(void) {
   cabs[CAB_A].maxReverse = -1500;
   cabs[CAB_A].dir = STOP;
   cabs[CAB_A].engineFacing = STOP;
-  cabs[CAB_A].buttonToPin[STOP] = STOP_A_PIN;
-  cabs[CAB_A].buttonToPin[FORWARD] = FORWARD_A_PIN;
-  cabs[CAB_A].buttonToPin[REVERSE] = REVERSE_A_PIN;
+  cabs[CAB_A].buttonToPin[STOP] = stopbuttonA.pinNumber();
+  cabs[CAB_A].buttonToPin[FORWARD] = forwardbuttonA.pinNumber();
+  cabs[CAB_A].buttonToPin[REVERSE] = reversebuttonA.pinNumber();
   cabs[CAB_A].buttonPreviousMillis[STOP] = 0;
   cabs[CAB_A].buttonPreviousMillis[FORWARD] = 0;
   cabs[CAB_A].buttonPreviousMillis[REVERSE] = 0;
@@ -292,9 +292,9 @@ void setupCabs(void) {
   cabs[CAB_B].maxReverse = -4095;
   cabs[CAB_B].dir = STOP;
   cabs[CAB_B].engineFacing = STOP;
-  cabs[CAB_B].buttonToPin[STOP] = STOP_B_PIN;
-  cabs[CAB_B].buttonToPin[FORWARD] = FORWARD_B_PIN;
-  cabs[CAB_B].buttonToPin[REVERSE] = REVERSE_B_PIN;
+  cabs[CAB_B].buttonToPin[STOP] = stopbuttonB.pinNumber();
+  cabs[CAB_B].buttonToPin[FORWARD] = forwardbuttonB.pinNumber();
+  cabs[CAB_B].buttonToPin[REVERSE] = reversebuttonB.pinNumber();
   cabs[CAB_B].buttonPreviousMillis[STOP] = 0;
   cabs[CAB_B].buttonPreviousMillis[FORWARD] = 0;
   cabs[CAB_B].buttonPreviousMillis[REVERSE] = 0;

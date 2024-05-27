@@ -22,7 +22,7 @@ struct cab {
   int maxReverse; // maximum speed the train will reach going reverse.
   uint8_t dir; // direction of train’s movement, STOP, FORWARD or REVERSE.
   uint8_t engineFacing; // direction the train's engine is facing, STOP, EAST or WEST.
-  int buttonToPin[3]; // array of pin numbers for STOP, FORWARD and REVERSE.
+  uint8_t buttonToPin[3]; // array of pin numbers for STOP, FORWARD and REVERSE.
   unsigned long buttonPreviousMillis[3]; // array of time since last button press for STOP, FORWARD and REVERSE.
   unsigned long buttonInterval; // interval at which to look for new press (de-bounce).
   uint8_t L298ToPin[3]; // array of L298 pin numbers for ENABLE, IN1 and IN2.
@@ -36,26 +36,21 @@ struct button {
 const uint8_t PWM_I2C_ADDR = 0x41;
 const uint8_t SOUND_I2C_ADDR = 0x09; // External device, Smiths Valley address.
 //
-//-------------------- Pin assignments ---------------------
-// OLED pins 10, 11, 12 and 13, DO NOT USE!!!
-const uint8_t STOP_A_PIN = 6;
-const uint8_t FORWARD_A_PIN = 7;
-const uint8_t REVERSE_A_PIN = 8;
-const uint8_t SOUND_A_PIN = 9;
-const uint8_t STOP_B_PIN = 3;
-const uint8_t FORWARD_B_PIN = 4;
-const uint8_t REVERSE_B_PIN = 5;
-const uint8_t TEST_SWITCH_PIN = 2;
-//
 //---------------------- Create pads -----------------------
-  Pad stopbuttonA(STOP_A_PIN, INPUT, "throttle");
-  Pad forwardbuttonA(FORWARD_A_PIN, INPUT, "throttle");
-  Pad reversebuttonA(REVERSE_A_PIN, INPUT, "throttle");
-  Pad soundbuttonA(SOUND_A_PIN, INPUT, "sound");
+// OLED pins 10, 11, 12 and 13, DO NOT USE!!!
+  Pad stopbuttonA(6, INPUT, "throttle");
+  Pad forwardbuttonA(7, INPUT, "throttle");
+  Pad reversebuttonA(8, INPUT, "throttle");
+  Pad soundbuttonA(9, INPUT, "sound");
   //
+  Pad stopbuttonB(3, INPUT, "throttle");
+  Pad forwardbuttonB(4, INPUT, "throttle");
+  Pad reversebuttonB(5, INPUT, "throttle");
   //
-  // Test Mode
-  Pad testSlideSwitch(TEST_SWITCH_PIN, INPUT_PULLUP);
+  Pad testSlideSwitch(2, INPUT_PULLUP);
+//
+//-------------------- Pin assignments ---------------------
+const uint8_t TEST_ANALOG_INPUT = A1;
 //
 //---------------- PWM Channel assignments -----------------
 const uint8_t L298_ENA = 0;
