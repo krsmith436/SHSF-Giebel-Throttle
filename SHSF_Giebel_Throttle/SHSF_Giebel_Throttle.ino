@@ -44,13 +44,14 @@ TickTimer timerRefreshDisplay;
 TickTimer timerTestModeSwitch;
 inputHunter huntThrottleButtons;
 inputHunter huntSoundButton;
+doList listTestSlideSwitch;
 //
 //-----------------GLOBAL VARIABLES-------------------//
 struct cab cabs[NUMBER_OF_CABS];
 struct button soundButton;
 bool blnLogoTimedOut = false; // variable for indicating the logo has timed out.
 bool blnTestMode = false; // variable for indicating the Test/Operate slide switch position.
-byte bytTestNumber = 0; // test number to run in Test mode.
+int intTestNumber = 0; // test number to run in Test mode.
 //
 void setup() {
   Serial.begin(COM_BAUD_RATE);
@@ -79,9 +80,11 @@ void setup() {
   setupButtons();
   //
   // Initialize Tweakly.
+  listTestSlideSwitch.addTask([]{ blnTestMode = testSlideSwitch.read(); });
+  listTestSlideSwitch.addTask([]{ intTestNumber = (blnTestMode) ? intTestNumber:0; });
   timerLogo.attach(8000, []{ blnLogoTimedOut = true; }, DISPATCH_ONCE);
   timerRefreshDisplay.attach(500, dsplyValues);
-  timerTestModeSwitch.attach(500, []{ blnTestMode = testSlideSwitch.read(); });
+  timerTestModeSwitch.attach(500, []{ listTestSlideSwitch.next(); });
   huntThrottleButtons.assign("throttle", handleThrottleButtons);
   huntSoundButton.assign("sound", handleSoundButton);
   //
