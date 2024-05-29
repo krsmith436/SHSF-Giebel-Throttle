@@ -12,7 +12,7 @@ String getTestMessageText(bool setTestValue) {
   switch (intTestNumber) {
     case 0: // Select test to run
       intTestValue = map(analogRead(TEST_ANALOG_INPUT), 0, 1023, 0, 50);
-      strTemp = "Run Test # ";
+      strTemp = F("Run Test # ");
       strTemp.concat(intTestValue);
       if (setTestValue) {
         intTestNumber = intTestValue;
@@ -21,7 +21,7 @@ String getTestMessageText(bool setTestValue) {
     case 1: // PWM Frequency
       intTestValue = map(analogRead(TEST_ANALOG_INPUT), 0, 1023, 20, 200);
       intTestValue = roundToMultiple(intTestValue,10);
-      strTemp = "PWM Fq [Hz]: ";
+      strTemp = F("PWM Fq [Hz]: ");
       strTemp.concat(intTestValue);
       if (setTestValue) {
         pwm.setPWMFreq(intTestValue);
@@ -30,7 +30,7 @@ String getTestMessageText(bool setTestValue) {
     case 2: // Throttle minimum
       intTestValue = map(analogRead(TEST_ANALOG_INPUT), 0, 1023, 100, 1000);
       intTestValue = roundToMultiple(intTestValue,10);
-      strTemp = "Min [Steps]: ";
+      strTemp = F("Min [Steps]: ");
       strTemp.concat(intTestValue);
       if (setTestValue) {
         cabs[CAB_A].minForward = intTestValue;
@@ -40,7 +40,7 @@ String getTestMessageText(bool setTestValue) {
     case 3: // Step value
       intTestValue = map(analogRead(TEST_ANALOG_INPUT), 0, 1023, 0, 500);
       intTestValue = roundToMultiple(intTestValue,5);
-      strTemp = "Step Value: ";
+      strTemp = F("Step Value: ");
       strTemp.concat(intTestValue);
       if (setTestValue) {
         cabs[CAB_A].stepValue = intTestValue;
@@ -48,7 +48,7 @@ String getTestMessageText(bool setTestValue) {
       break;
     default:
       intTestValue = map(analogRead(TEST_ANALOG_INPUT), 0, 1023, 0, 50);
-      strTemp = "No Test #";
+      strTemp = F("No Test #");
       strTemp.concat(intTestValue);
       if (setTestValue) {
         intTestNumber = intTestValue;
