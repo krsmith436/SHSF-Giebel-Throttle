@@ -173,7 +173,6 @@ void driveMotor(int intCab) {
 //
 void dsplyValues(void) {
   if (blnLogoTimedOut) {
-    uint8_t dsplyThrottle = 0; // throttle value to display.
     uint8_t rh = 13; // row height.
     uint8_t c1 = 7; // column 1 start, Cab.
     uint8_t c2 = 30; // column 2 start, Throttle. (3 chartacters = 33)
