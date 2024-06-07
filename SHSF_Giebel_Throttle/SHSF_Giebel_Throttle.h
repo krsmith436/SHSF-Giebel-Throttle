@@ -14,7 +14,7 @@ const uint8_t IN2 = 2; // array index for PWM pins.
 //
 struct cab {
   char engineNumber[7]; // engine number; 6 characters max, leaving 1 for NULL character.
-  int throttle; // train’s speed in the range from -255 to 255.
+  int throttle; // train’s speed in the range from -4095 to 4095.
   int stepValue; // amount to increment/decrement train’s speed.
   int minForward; // minimum speed the train needs to start going forward.
   int maxForward; // maximum speed the train will reach going forward.

@@ -46,6 +46,14 @@ String getTestMessageText(bool setTestValue) {
         cabs[CAB_A].stepValue = intTestValue;
       }
       break;
+    case 4: // Set Real Time Clock (RTC) time
+      strTemp = F("Set RTC Time?");
+      if (setTestValue) {
+        RTCTime mytime(4, Month::JUNE, 2024, 19,19, 00, DayOfWeek::TUESDAY, SaveLight::SAVING_TIME_ACTIVE);
+        RTC.setTime(mytime);
+        blnRtcBbatteryFault = false;    
+      }
+      break;
     default:
       intTestValue = map(analogRead(TEST_ANALOG_INPUT), 0, 1023, 0, 50);
       strTemp = F("No Test #");
@@ -142,6 +150,132 @@ void handleThrottleButtons(int curPin) {
 }
 //
 //
+void dsplyValues(void) {
+  if (blnLogoTimedOut) {
+    uint8_t rh = 13; // row height.
+    uint8_t c1 = 7; // column 1 start, Cab.
+    uint8_t c2 = 30; // column 2 start, Throttle. (3 chartacters = 33)
+    uint8_t c3 = 75; // column 3 start, Direction.
+    uint8_t c4 = 104; // column 4 start, Engine Facing.
+    uint8_t bh = 19; // bar height, Throttle.
+    uint8_t bw = 65; // bar width, Throttle.
+    uint8_t bs = 128 - bw; // bar start, Throttle.
+    uint8_t iw = 14; // icon width, Direction.
+    uint8_t is = bs - iw - 3; // icon start, Direction.
+    String strTemp = "";
+    //
+    // picture loop  
+    u8g2.firstPage();
+    do {
+      u8g2_prepareName(); // Upper case font.
+      u8g2.setCursor(4,0);
+      u8g2.print("GIEBEL THROTTLE"); // first row.
+      u8g2_prepareValues();
+      //
+      if (!blnTestMode) {
+      // Operate Mode.
+        //
+        // Bottom line text is added here to be the same font as the title.
+        if (!blnRtcBbatteryFault) {
+          RTCTime currenttime;
+          RTC.getTime(currenttime);
+          strTemp = currenttime.toString();
+          strTemp.remove(0, 2);
+        }
+        else {
+          strTemp = "Replace RTC Battery";
+        }
+        u8g2.setCursor(4,54);
+        u8g2.print(strTemp);
+        //
+        u8g2_prepareCabName();
+        //
+        for (int i=0; i < NUMBER_OF_CABS; i ++) {
+          u8g2.setCursor(0, 4 + rh + i*bh);
+          u8g2.print(cabs[i].engineNumber);
+          //
+          //Draw speed bar frame.
+          u8g2.drawFrame(bs, rh + i*bh, bw, bh);
+          //Draw speed bar and direction arrow.
+          switch(cabs[i].dir) {
+            case STOP:
+              u8g2.drawLine(is + iw,rh + i*bh, is,rh + (i+1)*bh);
+              u8g2.drawLine(is,rh + i*bh, is + iw,rh + (i+1)*bh);
+              break;
+            case FORWARD:
+              u8g2.drawBox(bs, rh + i*bh, bw*cabs[i].throttle/cabs[i].maxForward, bh);
+              u8g2.drawTriangle(is,rh + i*bh, is + iw,rh + i*bh + bh/2, is,rh + (i+1)*bh);
+              break;
+            case REVERSE:
+              u8g2.drawBox(bs, rh + i*bh, bw*cabs[i].throttle/cabs[i].maxReverse, bh);
+              u8g2.drawTriangle(is + iw,rh + i*bh, is + iw,rh + (i+1)*bh, is,rh + (i*bh) + (bh/2));
+              break;
+          }
+        }
+      }
+      else {
+      // Test Mode.
+        //
+        u8g2.drawStr(0,rh,"Cab  Thrtl  Dir  Face"); // second row.
+        //
+        for (int i=0; i < NUMBER_OF_CABS; i ++) {
+          u8g2.setCursor(c1,(i+2)*rh);
+          strTemp = (i == CAB_A) ? "A" : "B";
+          u8g2.print(strTemp);
+          //
+          // Use print(u8x8_u8toa(value, digits)) or print(u8x8_u16toa(value, digits)) 
+          // to print numbers with constant width (numbers are prefixed with 0 if required).
+          u8g2.setCursor(c2,(i+2)*rh);
+          // Found that u8x8_u8toa does like 4 characters!!!
+          //u8g2.print(u8x8_u8toa(abs(cabs[i].throttle), 4)); // Display four characters for throttle.
+          u8g2.print(abs(cabs[i].throttle));
+          //
+          switch(cabs[i].dir) {
+            case STOP:
+              strTemp = "X";
+              break;
+            case FORWARD:
+              strTemp = "F";
+              break;
+            case REVERSE:
+              strTemp = "R";
+              break;
+          }
+          u8g2.setCursor(c3,(i+2)*rh);
+          u8g2.print(strTemp);
+          //
+          switch(cabs[i].engineFacing) {
+            case STOP:
+              strTemp = "X";
+              break;
+            case EAST:
+              strTemp = "E";
+              break;
+            case WEST:
+              strTemp = "W";
+              break;
+          }
+          u8g2.setCursor(c4,(i+2)*rh);
+          u8g2.print(strTemp);
+        }
+        // Bottom line text.
+        strTemp = getTestMessageText(false);
+        u8g2.setCursor(0,54);
+        u8g2.print(strTemp);
+      }
+    } while ( u8g2.nextPage() );
+  }
+}
+//
+//
+String getPwmFrequency(void) {
+  int intFreq = round(pwm.getOscillatorFrequency() / (4096 * pwm.readPrescale())) - 1;
+  String strTemp = "PWM [Hz]: ";
+  strTemp.concat(intFreq);
+  return strTemp;
+}
+//
+//
 void driveMotor(int intCab) {
   //
   // Set track direction based on engine facing direction.
@@ -171,82 +305,6 @@ void driveMotor(int intCab) {
 }
 //
 //
-void dsplyValues(void) {
-  if (blnLogoTimedOut) {
-    uint8_t rh = 13; // row height.
-    uint8_t c1 = 7; // column 1 start, Cab.
-    uint8_t c2 = 30; // column 2 start, Throttle. (3 chartacters = 33)
-    uint8_t c3 = 75; // column 3 start, Direction.
-    uint8_t c4 = 104; // column 4 start, Engine Facing.
-    String strTemp = "";
-    //
-    // picture loop  
-    u8g2.firstPage();
-    do {
-      u8g2_prepareName(); // Upper case font.
-      u8g2.setCursor(4,0);
-      u8g2.print("GIEBEL THROTTLE"); // first row.
-      u8g2_prepareValues();
-      u8g2.drawStr(0,rh,"Cab  Thrtl  Dir  Face"); // second row.
-      //
-      for (int i=0; i < NUMBER_OF_CABS; i ++) {
-        u8g2.setCursor(c1,(i+2)*rh);
-        u8g2.print(cabs[i].engineNumber);
-        //
-        // Use print(u8x8_u8toa(value, digits)) or print(u8x8_u16toa(value, digits)) 
-        // to print numbers with constant width (numbers are prefixed with 0 if required).
-        u8g2.setCursor(c2,(i+2)*rh);
-        // Found that u8x8_u8toa does like 4 characters!!!
-        //u8g2.print(u8x8_u8toa(abs(cabs[i].throttle), 4)); // Display four characters for throttle.
-        u8g2.print(abs(cabs[i].throttle));
-        //
-        switch(cabs[i].dir) {
-          case STOP:
-            strTemp = "X";
-            break;
-          case FORWARD:
-            strTemp = "F";
-            break;
-          case REVERSE:
-            strTemp = "R";
-            break;
-        }
-        u8g2.setCursor(c3,(i+2)*rh);
-        u8g2.print(strTemp);
-        //
-        switch(cabs[i].engineFacing) {
-          case STOP:
-            strTemp = "X";
-            break;
-          case EAST:
-            strTemp = "E";
-            break;
-          case WEST:
-            strTemp = "W";
-            break;
-        }
-        u8g2.setCursor(c4,(i+2)*rh);
-        u8g2.print(strTemp);
-      }
-      //
-      // Bottom line text.
-      u8g2.setCursor(0,54);
-      if (!blnTestMode) {
-      // Operate Mode.
-        int intFreq = round(pwm.getOscillatorFrequency() / (4096 * pwm.readPrescale())) - 1;
-        strTemp = "PWM [Hz]: ";
-        strTemp.concat(intFreq);
-      }
-      else {
-      // Test Mode.
-        strTemp = getTestMessageText(false);
-      }
-      u8g2.print(strTemp);
-    } while ( u8g2.nextPage() );
-  }
-}
-//
-//
 void dsplyLogo(void) {
   // picture loop  
   u8g2.firstPage();  
@@ -269,7 +327,16 @@ void u8g2_prepareName(void) {
 //
 //
 void u8g2_prepareValues(void) {
-  u8g2.setFont(u8g2_font_luBS08_tr); // u8g2_font_luBS08_tr,u8g2_font_spleen6x12_mr
+  u8g2.setFont(u8g2_font_luBS08_tr);
+  u8g2.setFontRefHeightExtendedText();
+  u8g2.setDrawColor(1);
+  u8g2.setFontPosTop();
+  u8g2.setFontDirection(0);
+}
+//
+//
+void u8g2_prepareCabName(void) {
+  u8g2.setFont(u8g2_font_spleen8x16_mr);
   u8g2.setFontRefHeightExtendedText();
   u8g2.setDrawColor(1);
   u8g2.setFontPosTop();
@@ -284,7 +351,7 @@ void setupButtons(void) {
 //
 //
 void setupCabs(void) {
-  strcpy(cabs[CAB_A].engineNumber, "A");
+  strcpy(cabs[CAB_A].engineNumber, "200C");
   cabs[CAB_A].throttle = 0;
   cabs[CAB_A].stepValue = 100;
   cabs[CAB_A].minForward = 400;
@@ -292,7 +359,7 @@ void setupCabs(void) {
   cabs[CAB_A].minReverse = -400;
   cabs[CAB_A].maxReverse = -1500;
   cabs[CAB_A].dir = STOP;
-  cabs[CAB_A].engineFacing = STOP;
+  cabs[CAB_A].engineFacing = EAST;
   cabs[CAB_A].buttonToPin[STOP] = stopbuttonA.pinNumber();
   cabs[CAB_A].buttonToPin[FORWARD] = forwardbuttonA.pinNumber();
   cabs[CAB_A].buttonToPin[REVERSE] = reversebuttonA.pinNumber();

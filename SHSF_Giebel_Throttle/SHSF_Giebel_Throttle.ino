@@ -22,11 +22,12 @@
 ****************************************************************************
 */
 //-----------------Calling libraries needed to run-----------//
-#include <Wire.h> // for I2C.
-#include <SPI.h> // for OLED.
+#include <Wire.h> // for Inter-Integrated Circuit (I2C).
+#include <SPI.h> // for Organic Light Emitting Diode (OLED).
+#include "RTC.h" // for Real Time Clock (RTC).
+#include <Adafruit_PWMServoDriver.h> // for 16-Channel Servo Driver.
 #include <Tweakly.h> // for non-blocking (no use of delay()) schedule of tasks and input processing.
 #include "SHSF_Giebel_Throttle.h"
-#include <Adafruit_PWMServoDriver.h> // for 16-Channel Servo Driver.
 //
 //------------------Object Instantiation------------------//
 // U8g2 Contructor List (Picture Loop Page Buffer)
@@ -52,12 +53,28 @@ struct button soundButton;
 bool blnLogoTimedOut = false; // variable for indicating the logo has timed out.
 bool blnTestMode = false; // variable for indicating the Test/Operate slide switch position.
 int intTestNumber = 0; // test number to run in Test mode.
+bool blnRtcBbatteryFault = false; // flag to replace the internal 3.3V battery for Real Time Clock (RTC).
 //
 void setup() {
   Serial.begin(COM_BAUD_RATE);
   //
   Serial.println(F("SH&SF - Giebel Throttle"));
   Serial.println(F("Starting setup."));
+  //
+  // Initialize Real Time Clock.
+  RTC.begin();
+  RTCTime savedTime;
+  RTC.getTime(savedTime);
+  //
+  if (!RTC.isRunning()) {
+    // this means the RTC is waking up "as new"
+    if (savedTime.getYear() == 2000) {
+      blnRtcBbatteryFault = true;
+    } else {
+      RTC.setTime(savedTime);
+      blnRtcBbatteryFault = false;
+    }
+  }
   //
   // Initialize display.
   u8g2.begin();
@@ -83,7 +100,7 @@ void setup() {
   listTestSlideSwitch.addTask([]{ blnTestMode = testSlideSwitch.read(); });
   listTestSlideSwitch.addTask([]{ intTestNumber = (blnTestMode) ? intTestNumber:0; });
   timerLogo.attach(8000, []{ blnLogoTimedOut = true; }, DISPATCH_ONCE);
-  timerRefreshDisplay.attach(500, dsplyValues);
+  timerRefreshDisplay.attach(1000, dsplyValues);
   timerTestModeSwitch.attach(500, []{ listTestSlideSwitch.next(); });
   huntThrottleButtons.assign("throttle", handleThrottleButtons);
   huntSoundButton.assign("sound", handleSoundButton);
