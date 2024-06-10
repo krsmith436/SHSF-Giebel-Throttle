@@ -25,6 +25,10 @@
 #include <Wire.h> // for Inter-Integrated Circuit (I2C).
 #include <SPI.h> // for Organic Light Emitting Diode (OLED).
 #include "RTC.h" // for Real Time Clock (RTC).
+#include <NTPClient.h> // for Network Time Protocol (NTP).
+#include <WiFiS3.h> // for Wireless Fidelity (WiFi).
+#include <WiFiUdp.h> // for Wireless Fidelity (WiFi).
+#include "Arduino_Secrets.h" // for Wireless Fidelity (WiFi).
 #include <Adafruit_PWMServoDriver.h> // for 16-Channel Servo Driver.
 #include <Tweakly.h> // for non-blocking (no use of delay()) schedule of tasks and input processing.
 #include "SHSF_Giebel_Throttle.h"
@@ -38,6 +42,9 @@ U8G2_SH1106_128X64_NONAME_1_4W_SW_SPI u8g2(/* rotation=*/ U8G2_R0, /* clock=*/ 1
 // Arduino Library Docs: http://adafruit.github.io/Adafruit-PWM-Servo-Driver-Library/html/class_adafruit___p_w_m_servo_driver.html
 // (https://adafru.it/Au7)
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver(PWM_I2C_ADDR);
+//
+WiFiUDP Udp; // A UDP instance to let us send and receive packets over UDP
+NTPClient timeClient(Udp);
 //
 //-------------------Tweakly---------------------//
 TickTimer timerLogo;
@@ -54,6 +61,10 @@ bool blnLogoTimedOut = false; // variable for indicating the logo has timed out.
 bool blnTestMode = false; // variable for indicating the Test/Operate slide switch position.
 int intTestNumber = 0; // test number to run in Test mode.
 bool blnRtcBbatteryFault = false; // flag to replace the internal 3.3V battery for Real Time Clock (RTC).
+///////please enter your sensitive data in the Secret tab/Arduino_Secrets.h
+char ssid[] = SECRET_SSID;        // your network SSID (name)
+char pass[] = SECRET_PASS;    // your network password (use for WPA, or use as key for WEP)
+int wifiStatus = WL_IDLE_STATUS;
 //
 void setup() {
   Serial.begin(COM_BAUD_RATE);
@@ -61,24 +72,34 @@ void setup() {
   Serial.println(F("SH&SF - Giebel Throttle"));
   Serial.println(F("Starting setup."));
   //
-  // Initialize Real Time Clock.
-  RTC.begin();
-  RTCTime savedTime;
-  RTC.getTime(savedTime);
-  //
-  if (!RTC.isRunning()) {
-    // this means the RTC is waking up "as new"
-    if (savedTime.getYear() == 2000) {
-      blnRtcBbatteryFault = true;
-    } else {
-      RTC.setTime(savedTime);
-      blnRtcBbatteryFault = false;
-    }
-  }
-  //
   // Initialize display.
   u8g2.begin();
   dsplyLogo();
+  //
+  // Initialize Real Time Clock.
+  RTC.begin();
+  RTCTime myTime;
+  RTC.getTime(myTime);
+  //
+  if (!RTC.isRunning()) {
+    // this means the RTC is waking up "as new"
+    if (myTime.getYear() == 2000) {
+      blnRtcBbatteryFault = true;
+    } else {
+      blnRtcBbatteryFault = false;
+    }
+    // Get the current date and time from an NTP server and convert.
+    connectToWiFi();
+    Serial.println(F("\nStarting connection to time server..."));
+    timeClient.begin();
+    timeClient.update();
+    auto timeZoneOffsetHours = -5;
+    auto unixTime = timeClient.getEpochTime() + (timeZoneOffsetHours * 3600);
+    Serial.print(F("Unix time = "));
+    Serial.println(unixTime);
+    myTime = RTCTime(unixTime);
+    RTC.setTime(myTime);
+  }
   //
   // Initialize I2C as Host.
   Wire.begin();
@@ -99,7 +120,7 @@ void setup() {
   // Initialize Tweakly.
   listTestSlideSwitch.addTask([]{ blnTestMode = testSlideSwitch.read(); });
   listTestSlideSwitch.addTask([]{ intTestNumber = (blnTestMode) ? intTestNumber:0; });
-  timerLogo.attach(8000, []{ blnLogoTimedOut = true; }, DISPATCH_ONCE);
+  timerLogo.attach(5000, []{ blnLogoTimedOut = true; }, DISPATCH_ONCE);
   timerRefreshDisplay.attach(1000, dsplyValues);
   timerTestModeSwitch.attach(500, []{ listTestSlideSwitch.next(); });
   huntThrottleButtons.assign("throttle", handleThrottleButtons);
