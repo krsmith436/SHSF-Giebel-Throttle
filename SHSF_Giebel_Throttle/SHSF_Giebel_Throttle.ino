@@ -60,7 +60,6 @@ struct button soundButton;
 bool blnLogoTimedOut = false; // variable for indicating the logo has timed out.
 bool blnTestMode = false; // variable for indicating the Test/Operate slide switch position.
 int intTestNumber = 0; // test number to run in Test mode.
-bool blnRtcBbatteryFault = false; // flag to replace the internal 3.3V battery for Real Time Clock (RTC).
 ///////please enter your sensitive data in the Secret tab/Arduino_Secrets.h
 char ssid[] = SECRET_SSID;        // your network SSID (name)
 char pass[] = SECRET_PASS;    // your network password (use for WPA, or use as key for WEP)
@@ -78,28 +77,17 @@ void setup() {
   //
   // Initialize Real Time Clock.
   RTC.begin();
-  RTCTime myTime;
-  RTC.getTime(myTime);
-  //
-  if (!RTC.isRunning()) {
-    // this means the RTC is waking up "as new"
-    if (myTime.getYear() == 2000) {
-      blnRtcBbatteryFault = true;
-    } else {
-      blnRtcBbatteryFault = false;
-    }
-    // Get the current date and time from an NTP server and convert.
-    connectToWiFi();
-    Serial.println(F("\nStarting connection to time server..."));
-    timeClient.begin();
-    timeClient.update();
-    auto timeZoneOffsetHours = -5;
-    auto unixTime = timeClient.getEpochTime() + (timeZoneOffsetHours * 3600);
-    Serial.print(F("Unix time = "));
-    Serial.println(unixTime);
-    myTime = RTCTime(unixTime);
-    RTC.setTime(myTime);
-  }
+  // Get the current date and time from an NTP server and convert.
+  connectToWiFi();
+  Serial.println(F("\nStarting connection to time server..."));
+  timeClient.begin();
+  timeClient.update();
+  auto timeZoneOffsetHours = -5;
+  auto unixTime = timeClient.getEpochTime() + (timeZoneOffsetHours * 3600);
+  Serial.print(F("Unix time = "));
+  Serial.println(unixTime);
+  RTCTime myTime = RTCTime(unixTime);
+  RTC.setTime(myTime);
   //
   // Initialize I2C as Host.
   Wire.begin();
@@ -107,7 +95,7 @@ void setup() {
   // Initialize PWM driver.
   pwm.begin();
   pwm.setOscillatorFrequency(27000000);
-  pwm.setPWMFreq(100);
+  pwm.setPWMFreq(50);
   //
   // Initialize cabs.
   setupCabs();

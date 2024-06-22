@@ -51,7 +51,6 @@ String getTestMessageText(bool setTestValue) {
       if (setTestValue) {
         RTCTime mytime(4, Month::JUNE, 2024, 19,19, 00, DayOfWeek::TUESDAY, SaveLight::SAVING_TIME_ACTIVE);
         RTC.setTime(mytime);
-        blnRtcBbatteryFault = false;    
       }
       break;
     default:
@@ -176,15 +175,10 @@ void dsplyValues(void) {
       // Operate Mode.
         //
         // Bottom line text is added here to be the same font as the title.
-        if (!blnRtcBbatteryFault) {
-          RTCTime currenttime;
-          RTC.getTime(currenttime);
-          strTemp = currenttime.toString();
-          strTemp.remove(0, 2);
-        }
-        else {
-          strTemp = "Replace RTC Battery";
-        }
+        RTCTime currenttime;
+        RTC.getTime(currenttime);
+        strTemp = currenttime.toString();
+        strTemp.remove(0, 2);
         u8g2.setCursor(4,54);
         u8g2.print(strTemp);
         //
@@ -353,7 +347,7 @@ void setupButtons(void) {
 void setupCabs(void) {
   strcpy(cabs[CAB_A].engineNumber, "200C");
   cabs[CAB_A].throttle = 0;
-  cabs[CAB_A].stepValue = 100;
+  cabs[CAB_A].stepValue = 75;
   cabs[CAB_A].minForward = 400;
   cabs[CAB_A].maxForward = 2500;
   cabs[CAB_A].minReverse = -400;
