@@ -61,7 +61,7 @@ const uint8_t L298_IN4 = 4;
 const uint8_t L298_ENB = 5;
 //
 // for communications
-const unsigned long COM_BAUD_RATE = 9600;
+const unsigned long COM_BAUD_RATE = 115200;
 //
 // for OLED
 // Universal 8bit Graphics Library (https://github.com/olikraus/u8g2/)

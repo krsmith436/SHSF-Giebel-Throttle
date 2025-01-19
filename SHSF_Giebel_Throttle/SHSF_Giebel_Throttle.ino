@@ -8,12 +8,17 @@
   - PWM control for track power
   - Wireless handheld keypad
   - Parametric display
+  - Set locomotive parameters with QR Code
 
   Hardware used:
-  1) Arduino Uno Clone from Dylan's gift of Lafvintech Smart Car Kit
-  2) RF keypad from Lynda and Mom's gift of Life-Like Radio Double Diesel train set
-  3) 4N33 Optoisolator
-  4) 128x64 OLED, SH1106
+  1) Updated to UNO R4 WiFi #ABX00087
+     Started with Arduino Uno Clone from Dylan's gift of Lafvintech Smart Car Kit
+  2) L298N DC Motor Driver Module from Dylan's gift of Lafvintech Smart Car Kit
+  3) RF keypad from Lynda and Mom's gift of Life-Like Radio Double Diesel train set
+  4) 4N33 Optoisolator
+  5) 128x64 OLED, SH1106
+  6) Adafruit PCA9685 16-Channel Servo Driver
+  7) Useful Sensors Inc. Tiny Code Reader, Adafruit #5744
 
 ****************************************************************************
   Adafruit PCA9685 16-Channel Servo Driver
@@ -31,6 +36,7 @@
 #include "Arduino_Secrets.h" // for Wireless Fidelity (WiFi).
 #include <Adafruit_PWMServoDriver.h> // for 16-Channel Servo Driver.
 #include <Tweakly.h> // for non-blocking (no use of delay()) schedule of tasks and input processing.
+#include "z_QR_Code_Reader.h" // for Tiny Code Reader (QR).
 #include "SHSF_Giebel_Throttle.h"
 //
 //------------------Object Instantiation------------------//
@@ -57,9 +63,11 @@ doList listTestSlideSwitch;
 //-----------------GLOBAL VARIABLES-------------------//
 struct cab cabs[NUMBER_OF_CABS];
 struct button soundButton;
-bool blnLogoTimedOut = false; // variable for indicating the logo has timed out.
-bool blnTestMode = false; // variable for indicating the Test/Operate slide switch position.
+bool blnLogoTimedOut = false; // flag for indicating the logo has timed out.
+bool blnTestMode = false; // flag for indicating the Test/Operate slide switch position.
 int intTestNumber = 0; // test number to run in Test mode.
+bool blnQRcodeFound = false; // flag for indicating a valid QR code has been found.
+String strQRcodeTestDsply = ""; // text to display in Test Mode for valid QR code found.
 ///////please enter your sensitive data in the Secret tab/Arduino_Secrets.h
 char ssid[] = SECRET_SSID;        // your network SSID (name)
 char pass[] = SECRET_PASS;    // your network password (use for WPA, or use as key for WEP)
@@ -89,8 +97,12 @@ void setup() {
   RTCTime myTime = RTCTime(unixTime);
   RTC.setTime(myTime);
   //
-  // Initialize I2C as Host.
+  // Initialize I2C as Host and Qwiic connector.
   Wire.begin();
+  Wire1.begin();
+  //
+  // Initialize Tiny Code Reader.
+  person_sensor_write_reg(1, 1); // (1, 0) to turn OFF LED, (1, 1) to turn ON.
   //
   // Initialize PWM driver.
   pwm.begin();
