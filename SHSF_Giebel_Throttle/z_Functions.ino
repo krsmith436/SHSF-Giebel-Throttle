@@ -5,120 +5,6 @@ int roundToMultiple(int toRound, int multiple)
 }
 //
 //
-String getTestMessageText(bool setTestValue) {
-  String strTemp = "";
-  int intTestValue = -1;
-  int index = -1;
-  //
-  tiny_code_reader_results_t results = {};
-  // Perform a read action on the I2C address of the sensor to get the
-  // current face information detected.
-  //
-  switch (intTestNumber) {
-    case 0: // Select test to run
-      intTestValue = map(analogRead(TEST_ANALOG_INPUT), 0, 1023, 0, 50);
-      strTemp = F("Run Test # ");
-      strTemp.concat(intTestValue);
-      if (setTestValue) {
-        intTestNumber = intTestValue;
-      }
-      break;
-    case 1: // Set locomotive parameters
-      if (!tiny_code_reader_read(&results)) {
-        Serial.println(F("No person sensor results found on the i2c bus"));
-      }
-      //
-      //*****************************************************************
-      // Still need to add logic that once valid data has been read, do
-      // not update again until the Sound button is pressed.
-      //*****************************************************************
-      //
-      if (results.content_length == 0) {
-        Serial.println(F("No code found"));
-        strTemp = "No code found";
-      } else {
-          Serial.print(F("Found '"));
-          Serial.print((char*)results.content_bytes);
-          Serial.println("'\n");
-          //
-//          for (index=0; index<6; index++) {
-//            cabs[CAB_A].engineNumber[index] += results.content_bytes[index];
-//          }
-//          cabs[CAB_A].engineNumber[6] = '\0';
-          //
-          cabs[CAB_A].stepValue = 0;
-          cabs[CAB_A].minForward = 0;
-          cabs[CAB_A].maxForward = 0;
-          cabs[CAB_A].minReverse = 0;
-          cabs[CAB_A].maxReverse = 0;
-          // Convert engineFacing character to a number.
-          cabs[CAB_A].engineFacing = results.content_bytes[25] - 48;
-          strTemp = F("Eng: ");
-          strTemp.concat(cabs[CAB_A].engineNumber);
-          //
-          blnQRcodeFound = true;
-      }
-      if (setTestValue) {
-        blnQRcodeFound = false;
-      }
-      break;
-    case 2: // PWM Frequency
-      intTestValue = map(analogRead(TEST_ANALOG_INPUT), 0, 1023, 20, 200);
-      intTestValue = roundToMultiple(intTestValue,10);
-      strTemp = F("PWM Fq [Hz]: ");
-      strTemp.concat(intTestValue);
-      if (setTestValue) {
-        pwm.setPWMFreq(intTestValue);
-      }
-      break;
-    case 3: // Throttle minimum
-      intTestValue = map(analogRead(TEST_ANALOG_INPUT), 0, 1023, 100, 1000);
-      intTestValue = roundToMultiple(intTestValue,10);
-      strTemp = F("Min [Steps]: ");
-      strTemp.concat(intTestValue);
-      if (setTestValue) {
-        cabs[CAB_A].minForward = intTestValue;
-        cabs[CAB_A].minReverse = -intTestValue;
-      }
-      break;
-    case 4: // Throttle maximum
-      intTestValue = map(analogRead(TEST_ANALOG_INPUT), 0, 1023, 2000, 4095);
-      intTestValue = roundToMultiple(intTestValue,10);
-      strTemp = F("Max [Steps]: ");
-      strTemp.concat(intTestValue);
-      if (setTestValue) {
-        cabs[CAB_A].maxForward = intTestValue;
-        cabs[CAB_A].maxReverse = -intTestValue;
-      }
-      break;
-    case 5: // Step value
-      intTestValue = map(analogRead(TEST_ANALOG_INPUT), 0, 1023, 0, 500);
-      intTestValue = roundToMultiple(intTestValue,5);
-      strTemp = F("Step Value: ");
-      strTemp.concat(intTestValue);
-      if (setTestValue) {
-        cabs[CAB_A].stepValue = intTestValue;
-      }
-      break;
-    case 6: // Set Real Time Clock (RTC) time
-      strTemp = F("Set RTC Time?");
-      if (setTestValue) {
-        RTCTime mytime(4, Month::JUNE, 2024, 19,19, 00, DayOfWeek::TUESDAY, SaveLight::SAVING_TIME_ACTIVE);
-        RTC.setTime(mytime);
-      }
-      break;
-    default:
-      intTestValue = map(analogRead(TEST_ANALOG_INPUT), 0, 1023, 0, 50);
-      strTemp = F("No Test #");
-      strTemp.concat(intTestValue);
-      if (setTestValue) {
-        intTestNumber = intTestValue;
-      }
-  }
-  return strTemp;
-}
-//
-//
 void handleSoundButton(int curPin) {
   unsigned long currentMillis = millis();
   if ((currentMillis - soundButton.previousMillis) >= soundButton.interval) {
@@ -229,12 +115,8 @@ void dsplyValues(void) {
       // Operate Mode.
         //
         // Bottom line text is added here to be the same font as the title.
-        RTCTime currenttime;
-        RTC.getTime(currenttime);
-        strTemp = currenttime.toString();
-        strTemp.remove(0, 2);
         u8g2.setCursor(4,54);
-        u8g2.print(strTemp);
+        u8g2.print(getPwmFrequency());
         //
         u8g2_prepareCabName();
         //
@@ -399,12 +281,12 @@ void setupButtons(void) {
 //
 //
 void setupCabs(void) {
-  strcpy(cabs[CAB_A].engineNumber, "200C");
+  strcpy(cabs[CAB_A].engineNumber, "0000");
   cabs[CAB_A].throttle = 0;
-  cabs[CAB_A].stepValue = 75;
-  cabs[CAB_A].minForward = 400;
-  cabs[CAB_A].maxForward = 2500;
-  cabs[CAB_A].minReverse = -400;
+  cabs[CAB_A].stepValue = 50;
+  cabs[CAB_A].minForward = 100;
+  cabs[CAB_A].maxForward = 1500;
+  cabs[CAB_A].minReverse = -50;
   cabs[CAB_A].maxReverse = -1500;
   cabs[CAB_A].dir = STOP;
   cabs[CAB_A].engineFacing = EAST;
