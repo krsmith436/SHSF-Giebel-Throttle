@@ -53,16 +53,16 @@ inline bool tiny_code_reader_read(tiny_code_reader_results_t* results) {
         const int bytesThisChunk = min(bytesRemaining, maxBytesPerChunk);
         const int endIndex = index + bytesThisChunk;
         const bool isLastChunk = (bytesRemaining <= maxBytesPerChunk);
-        Wire1.requestFrom(TINY_CODE_READER_I2C_ADDRESS, bytesThisChunk, isLastChunk);
+        Wire.requestFrom(TINY_CODE_READER_I2C_ADDRESS, bytesThisChunk, isLastChunk);
         for (; index < endIndex; ++index) {
-            if (Wire1.available() < 1) {
-                Serial.print(F("Only "));
+            if (Wire.available() < 1) {
+                Serial.print("Only ");
                 Serial.print(index);
-                Serial.print(F(" bytes available on I2C, but we need "));
+                Serial.print(" bytes available on I2C, but we need ");
                 Serial.println(bytesThisChunk);
                 return false;
             }
-            results_bytes[index] = Wire1.read();
+            results_bytes[index] = Wire.read();
         }
     }
     // Make sure the content string is null terminated. Older firmware didn't
@@ -76,10 +76,10 @@ inline bool tiny_code_reader_read(tiny_code_reader_results_t* results) {
 
 // Writes the value to the sensor register over the I2C bus.
 inline void person_sensor_write_reg(uint8_t reg, uint8_t value) {
-  Wire1.beginTransmission(TINY_CODE_READER_I2C_ADDRESS);
-  Wire1.write(reg);
-  Wire1.write(value);
-  Wire1.endTransmission();
+  Wire.beginTransmission(TINY_CODE_READER_I2C_ADDRESS);
+  Wire.write(reg);
+  Wire.write(value);
+  Wire.endTransmission();
 }
 
 #endif  // INCLUDE_TINY_CODE_READER_H

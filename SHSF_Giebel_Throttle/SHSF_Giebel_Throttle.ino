@@ -11,7 +11,7 @@
   - Set locomotive parameters with QR Code
 
   Hardware used:
-  1) Updated to UNO R4 WiFi #ABX00087
+  1) Updated to UNO R4 Minima #ABX00080
      Started with Arduino Uno Clone from Dylan's gift of Lafvintech Smart Car Kit
   2) L298N DC Motor Driver Module from Dylan's gift of Lafvintech Smart Car Kit
   3) RF keypad from Lynda and Mom's gift of Life-Like Radio Double Diesel train set
@@ -29,14 +29,9 @@
 //-----------------Calling libraries needed to run-----------//
 #include <Wire.h> // for Inter-Integrated Circuit (I2C).
 #include <SPI.h> // for Organic Light Emitting Diode (OLED).
-#include "RTC.h" // for Real Time Clock (RTC).
-#include <NTPClient.h> // for Network Time Protocol (NTP).
-#include <WiFiS3.h> // for Wireless Fidelity (WiFi).
-#include <WiFiUdp.h> // for Wireless Fidelity (WiFi).
-#include "Arduino_Secrets.h" // for Wireless Fidelity (WiFi).
 #include <Adafruit_PWMServoDriver.h> // for 16-Channel Servo Driver.
 #include <Tweakly.h> // for non-blocking (no use of delay()) schedule of tasks and input processing.
-#include "z_QR_Code_Reader.h" // for Tiny Code Reader (QR).
+#include "tiny_code_reader.h" // for Tiny Code Reader (QR).
 #include "SHSF_Giebel_Throttle.h"
 //
 //------------------Object Instantiation------------------//
@@ -48,9 +43,6 @@ U8G2_SH1106_128X64_NONAME_1_4W_SW_SPI u8g2(/* rotation=*/ U8G2_R0, /* clock=*/ 1
 // Arduino Library Docs: http://adafruit.github.io/Adafruit-PWM-Servo-Driver-Library/html/class_adafruit___p_w_m_servo_driver.html
 // (https://adafru.it/Au7)
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver(PWM_I2C_ADDR);
-//
-WiFiUDP Udp; // A UDP instance to let us send and receive packets over UDP
-NTPClient timeClient(Udp);
 //
 //-------------------Tweakly---------------------//
 TickTimer timerLogo;
@@ -66,15 +58,14 @@ struct button soundButton;
 bool blnLogoTimedOut = false; // flag for indicating the logo has timed out.
 bool blnTestMode = false; // flag for indicating the Test/Operate slide switch position.
 int intTestNumber = 0; // test number to run in Test mode.
+tiny_code_reader_results_t results = {}; // pointer to QR code read results.
 bool blnQRcodeFound = false; // flag for indicating a valid QR code has been found.
-String strQRcodeTestDsply = ""; // text to display in Test Mode for valid QR code found.
-///////please enter your sensitive data in the Secret tab/Arduino_Secrets.h
-char ssid[] = SECRET_SSID;        // your network SSID (name)
-char pass[] = SECRET_PASS;    // your network password (use for WPA, or use as key for WEP)
-int wifiStatus = WL_IDLE_STATUS;
 //
 void setup() {
   Serial.begin(COM_BAUD_RATE);
+    while (!Serial) {
+        ; // Wait for the serial port to connect (useful for native USB boards)
+    }
   //
   Serial.println(F("SH&SF - Giebel Throttle"));
   Serial.println(F("Starting setup."));
@@ -83,26 +74,11 @@ void setup() {
   u8g2.begin();
   dsplyLogo();
   //
-  // Initialize Real Time Clock.
-  RTC.begin();
-  // Get the current date and time from an NTP server and convert.
-  connectToWiFi();
-  Serial.println(F("\nStarting connection to time server..."));
-  timeClient.begin();
-  timeClient.update();
-  auto timeZoneOffsetHours = -5;
-  auto unixTime = timeClient.getEpochTime() + (timeZoneOffsetHours * 3600);
-  Serial.print(F("Unix time = "));
-  Serial.println(unixTime);
-  RTCTime myTime = RTCTime(unixTime);
-  RTC.setTime(myTime);
-  //
   // Initialize I2C as Host and Qwiic connector.
   Wire.begin();
-  Wire1.begin();
   //
   // Initialize Tiny Code Reader.
-  person_sensor_write_reg(1, 1); // (1, 0) to turn OFF LED, (1, 1) to turn ON.
+//  person_sensor_write_reg(1, 1); // (1, 0) to turn OFF LED, (1, 1) to turn ON.
   //
   // Initialize PWM driver.
   pwm.begin();

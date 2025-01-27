@@ -13,7 +13,7 @@ const uint8_t IN1 = 1; // array index for PWM pins.
 const uint8_t IN2 = 2; // array index for PWM pins.
 //
 struct cab {
-  char engineNumber[7]; // engine number; 6 characters max, leaving 1 for NULL character.
+  char engineNumber[5]; // engine number; 4 characters max, +1 for NULL character.
   int throttle; // train’s speed in the range from -4095 to 4095.
   int stepValue; // amount to increment/decrement train’s speed.
   int minForward; // minimum speed the train needs to start going forward.
@@ -33,6 +33,7 @@ struct button {
   unsigned long interval; // interval at which to look for new press (de-bounce).
 };
 //--------------------- I2C Addresses ----------------------
+// TINY_CODE_READER_I2C_ADDRESS (0x0c), defined in z_QR_Code_Reader.h
 const uint8_t PWM_I2C_ADDR = 0x41;
 const uint8_t SOUND_I2C_ADDR = 0x09; // External device, Smiths Valley address.
 //
