@@ -59,22 +59,29 @@ bool blnLogoTimedOut = false; // flag for indicating the logo has timed out.
 bool blnTestMode = false; // flag for indicating the Test/Operate slide switch position.
 int intTestNumber = 0; // test number to run in Test mode.
 tiny_code_reader_results_t results = {}; // pointer to QR code read results.
-bool blnQRcodeFound = false; // flag for indicating a valid QR code has been found.
 //
 void setup() {
-  Serial.begin(COM_BAUD_RATE);
-    while (!Serial) {
-        ; // Wait for the serial port to connect (useful for native USB boards)
-    }
-  //
-  Serial.println(F("SH&SF - Giebel Throttle"));
-  Serial.println(F("Starting setup."));
   //
   // Initialize display.
   u8g2.begin();
   dsplyLogo();
   //
-  // Initialize I2C as Host and Qwiic connector.
+  // Initialize Serial port.
+  Serial.begin(COM_BAUD_RATE);
+  unsigned long timeout = 1000; // Timeout in milliseconds (5 seconds)
+  unsigned long startMillis = millis(); // Record the start time
+  while (!Serial) {
+      // Check if the timeout has been reached
+      if (millis() - startMillis > timeout) {
+          Serial.println("Timeout reached, exiting loop.");
+          break; // Exit the loop after timeout
+      }
+  }
+  //
+  Serial.println(F("SH&SF - Giebel Throttle"));
+  Serial.println(F("Starting setup."));
+  //
+  // Initialize I2C as Host.
   Wire.begin();
   //
   // Initialize Tiny Code Reader.

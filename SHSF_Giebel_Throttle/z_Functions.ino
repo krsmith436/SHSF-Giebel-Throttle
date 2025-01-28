@@ -281,7 +281,7 @@ void setupButtons(void) {
 //
 //
 void setupCabs(void) {
-  strcpy(cabs[CAB_A].engineNumber, "0000");
+  strcpy(cabs[CAB_A].engineNumber, "   A");
   cabs[CAB_A].throttle = 0;
   cabs[CAB_A].stepValue = 50;
   cabs[CAB_A].minForward = 100;
@@ -300,7 +300,7 @@ void setupCabs(void) {
   cabs[CAB_A].L298ToPin[0] = L298_ENA;
   cabs[CAB_A].L298ToPin[1] = L298_IN1;
   cabs[CAB_A].L298ToPin[2] = L298_IN2;
-  strcpy(cabs[CAB_B].engineNumber, "B");
+  strcpy(cabs[CAB_B].engineNumber, "   B");
   cabs[CAB_B].throttle = 0;
   cabs[CAB_B].stepValue = 1;
   cabs[CAB_B].minForward = 700;

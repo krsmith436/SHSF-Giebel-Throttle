@@ -35,15 +35,9 @@ String getTestMessageText(bool setTestValue) {
       else {
           Serial.print(F("Found '"));
           Serial.print((char*)results.content_bytes);
-          Serial.println("'\n");
+          Serial.print("'\n");
           //
           strTemp = splitQRcode();
-          //
-          blnQRcodeFound = true;
-      }
-      
-      if (setTestValue) {
-        blnQRcodeFound = false;
       }
       break;
     case 2: // PWM Frequency
