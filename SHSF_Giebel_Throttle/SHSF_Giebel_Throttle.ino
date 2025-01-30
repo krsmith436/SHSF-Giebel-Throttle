@@ -68,15 +68,16 @@ void setup() {
   //
   // Initialize Serial port.
   Serial.begin(COM_BAUD_RATE);
-  unsigned long timeout = 1000; // Timeout in milliseconds (5 seconds)
-  unsigned long startMillis = millis(); // Record the start time
-  while (!Serial) {
-      // Check if the timeout has been reached
-      if (millis() - startMillis > timeout) {
-          Serial.println("Timeout reached, exiting loop.");
-          break; // Exit the loop after timeout
-      }
-  }
+  delay(1000);
+  // unsigned long timeout = 1000; // Timeout in milliseconds (5 seconds)
+  // unsigned long startMillis = millis(); // Record the start time
+  // while (!Serial) {
+  //     // Check if the timeout has been reached
+  //     if (millis() - startMillis > timeout) {
+  //         Serial.println("Timeout reached, exiting loop.");
+  //         break; // Exit the loop after timeout
+  //     }
+  // }
   //
   Serial.println(F("SH&SF - Giebel Throttle"));
   Serial.println(F("Starting setup."));

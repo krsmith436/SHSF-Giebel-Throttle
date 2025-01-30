@@ -31,13 +31,18 @@ String getTestMessageText(bool setTestValue) {
       if (results.content_length == 0) {
         Serial.println(F("No code found"));
         strTemp = "No code found";
-      }
-      else {
+      } else {
           Serial.print(F("Found '"));
           Serial.print((char*)results.content_bytes);
           Serial.print("'\n");
+          Serial.print(F("# Bytes = "));
+          Serial.println(results.content_length);
           //
+        if (results.content_length == 30) {
           strTemp = splitQRcode();
+         } else {
+          strTemp = "Not a SHSF code";
+         }
       }
       break;
     case 2: // PWM Frequency

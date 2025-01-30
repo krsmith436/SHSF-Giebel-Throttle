@@ -22,6 +22,10 @@ String splitQRcode() {
   strncpy(part7, (char*)results.content_bytes + 24, 5); // Copy next 5 characters.
   strncpy(part8, (char*)results.content_bytes + 29, 1); // Copy next 1 character.
   //
+  // Drive CAB_A to STOP before changing parameters.
+  cabs[CAB_A].throttle = 0;
+  driveMotor(CAB_A);
+  //
   strcpy(cabs[CAB_A].engineNumber, part1);
   strcpy(cabs[CAB_A].roadAbbreviation, part2);
   // Convert charater arrays to integer.

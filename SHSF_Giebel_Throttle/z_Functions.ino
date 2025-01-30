@@ -282,6 +282,7 @@ void setupButtons(void) {
 //
 void setupCabs(void) {
   strcpy(cabs[CAB_A].engineNumber, "   A");
+  strcpy(cabs[CAB_A].roadAbbreviation, "   A");
   cabs[CAB_A].throttle = 0;
   cabs[CAB_A].stepValue = 50;
   cabs[CAB_A].minForward = 100;
@@ -289,7 +290,7 @@ void setupCabs(void) {
   cabs[CAB_A].minReverse = -50;
   cabs[CAB_A].maxReverse = -1500;
   cabs[CAB_A].dir = STOP;
-  cabs[CAB_A].engineFacing = EAST;
+  cabs[CAB_A].engineFacing = STOP;
   cabs[CAB_A].buttonToPin[STOP] = stopbuttonA.pinNumber();
   cabs[CAB_A].buttonToPin[FORWARD] = forwardbuttonA.pinNumber();
   cabs[CAB_A].buttonToPin[REVERSE] = reversebuttonA.pinNumber();
@@ -301,6 +302,7 @@ void setupCabs(void) {
   cabs[CAB_A].L298ToPin[1] = L298_IN1;
   cabs[CAB_A].L298ToPin[2] = L298_IN2;
   strcpy(cabs[CAB_B].engineNumber, "   B");
+  strcpy(cabs[CAB_B].roadAbbreviation, "   B");
   cabs[CAB_B].throttle = 0;
   cabs[CAB_B].stepValue = 1;
   cabs[CAB_B].minForward = 700;
