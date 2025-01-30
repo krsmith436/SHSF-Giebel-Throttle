@@ -5,13 +5,6 @@ String getTestMessageText(bool setTestValue) {
   int intTestValue = -1;
   int index = -1;
   //
-  // Perform a read action on the I2C address of the sensor to get the
-  // current face information detected.
-  if (!tiny_code_reader_read(&results)) {
-    Serial.println("No person sensor results found on the i2c bus");
-    return strTemp;
-  }
-  //
   switch (intTestNumber) {
     case 0: // Select test to run
       intTestValue = map(analogRead(TEST_ANALOG_INPUT), 0, 1023, 0, 50);
@@ -21,31 +14,7 @@ String getTestMessageText(bool setTestValue) {
         intTestNumber = intTestValue;
       }
       break;
-    case 1: // Set locomotive parameters
-      //
-      //*****************************************************************
-      // Still need to add logic that once valid data has been read, do
-      // not update again until the Sound button is pressed.
-      //*****************************************************************
-      //
-      if (results.content_length == 0) {
-        Serial.println(F("No code found"));
-        strTemp = "No code found";
-      } else {
-          Serial.print(F("Found '"));
-          Serial.print((char*)results.content_bytes);
-          Serial.print("'\n");
-          Serial.print(F("# Bytes = "));
-          Serial.println(results.content_length);
-          //
-        if (results.content_length == 30) {
-          strTemp = splitQRcode();
-         } else {
-          strTemp = "Not a SHSF code";
-         }
-      }
-      break;
-    case 2: // PWM Frequency
+    case 1: // PWM Frequency
       intTestValue = map(analogRead(TEST_ANALOG_INPUT), 0, 1023, 20, 200);
       intTestValue = roundToMultiple(intTestValue,10);
       strTemp = F("PWM Fq [Hz]: ");
@@ -54,7 +23,7 @@ String getTestMessageText(bool setTestValue) {
         pwm.setPWMFreq(intTestValue);
       }
       break;
-    case 3: // Throttle minimum
+    case 2: // Throttle minimum
       intTestValue = map(analogRead(TEST_ANALOG_INPUT), 0, 1023, 100, 1000);
       intTestValue = roundToMultiple(intTestValue,10);
       strTemp = F("Min [Steps]: ");
@@ -64,7 +33,7 @@ String getTestMessageText(bool setTestValue) {
         cabs[CAB_A].minReverse = -intTestValue;
       }
       break;
-    case 4: // Throttle maximum
+    case 3: // Throttle maximum
       intTestValue = map(analogRead(TEST_ANALOG_INPUT), 0, 1023, 2000, 4095);
       intTestValue = roundToMultiple(intTestValue,10);
       strTemp = F("Max [Steps]: ");
@@ -74,7 +43,7 @@ String getTestMessageText(bool setTestValue) {
         cabs[CAB_A].maxReverse = -intTestValue;
       }
       break;
-    case 5: // Step value
+    case 4: // Step value
       intTestValue = map(analogRead(TEST_ANALOG_INPUT), 0, 1023, 0, 500);
       intTestValue = roundToMultiple(intTestValue,5);
       strTemp = F("Step Value: ");
