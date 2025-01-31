@@ -59,6 +59,7 @@ bool blnLogoTimedOut = false; // flag for indicating the logo has timed out.
 bool blnTestMode = false; // flag for indicating the Test/Operate slide switch position.
 int intTestNumber = 0; // test number to run in Test mode.
 tiny_code_reader_results_t results = {}; // pointer to QR code read results.
+int intToggleCounter = 0; // Counter to toggle between display of engine number/road abbreviation.
 //
 void setup() {
   //

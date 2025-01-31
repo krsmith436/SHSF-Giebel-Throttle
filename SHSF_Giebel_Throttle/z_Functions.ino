@@ -89,7 +89,7 @@ void handleThrottleButtons(int curPin) {
 }
 //
 //
-void dsplyValues(void) {
+void dsplyValues(void) { // This is the main function.
   if (blnLogoTimedOut) {
     uint8_t rh = 13; // row height.
     uint8_t c1 = 7; // column 1 start, Cab.
@@ -122,6 +122,7 @@ void dsplyValues(void) {
         else {
           if (results.content_length == 30) {
             strTemp = splitQRcode();
+            intToggleCounter = 0;
           }
           else {
             strTemp = getPwmFrequency();
@@ -135,7 +136,18 @@ void dsplyValues(void) {
         //
         for (int i=0; i < NUMBER_OF_CABS; i ++) {
           u8g2.setCursor(0, 4 + rh + i*bh);
-          u8g2.print(cabs[i].engineNumber);
+          // This will toggle display of engine number and road abbreviation.
+          if (intToggleCounter < 4) {
+            u8g2.print(cabs[i].engineNumber);
+            intToggleCounter += 1;
+          }
+          else if(intToggleCounter < 8) {
+            u8g2.print(cabs[i].roadAbbreviation);
+            intToggleCounter += 1;
+          }
+          else {
+            intToggleCounter = 0;
+          }
           //
           //Draw speed bar frame.
           u8g2.drawFrame(bs, rh + i*bh, bw, bh);
