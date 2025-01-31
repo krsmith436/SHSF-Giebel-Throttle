@@ -22,10 +22,11 @@ String splitQRcode() {
   strncpy(part7, (char*)results.content_bytes + 24, 5); // Copy next 5 characters.
   strncpy(part8, (char*)results.content_bytes + 29, 1); // Copy next 1 character.
   //
-  // Drive CAB_A to STOP before changing parameters.
+  // Drive CAB_A to STOP before setting parameters.
   cabs[CAB_A].throttle = 0;
   driveMotor(CAB_A);
   //
+  // Set parameters.
   strcpy(cabs[CAB_A].engineNumber, part1);
   strcpy(cabs[CAB_A].roadAbbreviation, part2);
   // Convert charater arrays to integer.
@@ -35,38 +36,21 @@ String splitQRcode() {
   cabs[CAB_A].minReverse = atoi(part6); // Minumum reverse.
   cabs[CAB_A].maxReverse = atoi(part7); // Maximum reverse.
   cabs[CAB_A].engineFacing = atoi(part8); // Engine facing.
-
-//  strTemp = F("Eng: ");
+  //
   strTemp = String(cabs[CAB_A].roadAbbreviation);
   strTemp.concat(" #");
   strTemp.concat(cabs[CAB_A].engineNumber);
-  
-
-  // Print the results
-  Serial.println("Split Arrays:");
-  Serial.print("Part 1: ");
-  Serial.println(part1);
-
-  Serial.print("Part 2: ");
-  Serial.println(part2);
-
-  Serial.print("Part 3: ");
-  Serial.println(cabs[CAB_A].stepValue);
-
-  Serial.print("Part 4: ");
-  Serial.println(cabs[CAB_A].minForward);
-
-  Serial.print("Part 5: ");
-  Serial.println(cabs[CAB_A].maxForward);
-
-  Serial.print("Part 6: ");
-  Serial.println(cabs[CAB_A].minReverse);
-
-  Serial.print("Part 7: ");
-  Serial.println(cabs[CAB_A].maxReverse);
-
-  Serial.print("Part 8: ");
-  Serial.println(cabs[CAB_A].engineFacing);
+  switch(cabs[CAB_A].engineFacing) {
+    case EAST:
+      strTemp.concat("   EAST");
+      break;
+    case WEST:
+      strTemp.concat("   WEST");
+      break;
+    default:
+      strTemp.concat("   X");
+      break;
+  }
   //
   return strTemp;
 }

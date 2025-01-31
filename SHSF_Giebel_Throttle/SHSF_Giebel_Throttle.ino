@@ -68,16 +68,7 @@ void setup() {
   //
   // Initialize Serial port.
   Serial.begin(COM_BAUD_RATE);
-  delay(1000);
-  // unsigned long timeout = 1000; // Timeout in milliseconds (5 seconds)
-  // unsigned long startMillis = millis(); // Record the start time
-  // while (!Serial) {
-  //     // Check if the timeout has been reached
-  //     if (millis() - startMillis > timeout) {
-  //         Serial.println("Timeout reached, exiting loop.");
-  //         break; // Exit the loop after timeout
-  //     }
-  // }
+  delay(1000); // This delay makes a lot of things work better!
   //
   Serial.println(F("SH&SF - Giebel Throttle"));
   Serial.println(F("Starting setup."));
@@ -85,7 +76,7 @@ void setup() {
   // Initialize I2C as Host.
   Wire.begin();
   //
-  // Initialize Tiny Code Reader.
+  // Initialize Tiny Code Reader. // THIS DOES NOT WORK!!!
 //  person_sensor_write_reg(1, 1); // (1, 0) to turn OFF LED, (1, 1) to turn ON.
   //
   // Initialize PWM driver.

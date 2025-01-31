@@ -1,5 +1,3 @@
-//
-//
 String getTestMessageText(bool setTestValue) {
   String strTemp = "";
   int intTestValue = -1;

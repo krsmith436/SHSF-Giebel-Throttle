@@ -113,7 +113,7 @@ void dsplyValues(void) {
       //
       if (!blnTestMode) {
       // Operate Mode.
-      //
+        //
         // Perform a read action on QR code reader.
         if (!tiny_code_reader_read(&results)) {
           Serial.println(F("No person sensor results found on the i2c bus"));
@@ -124,15 +124,12 @@ void dsplyValues(void) {
             strTemp = splitQRcode();
           }
           else {
-            strTemp = "Not a SHSF code.";
+            strTemp = getPwmFrequency();
           }
         }
-        //
         // Bottom line text is added here to be the same font as the title.
         u8g2.setCursor(4,54);
         u8g2.print(strTemp);
-//        u8g2.print(getPwmFrequency());
-          
         //
         u8g2_prepareCabName();
         //
