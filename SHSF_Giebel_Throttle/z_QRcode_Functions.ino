@@ -1,4 +1,4 @@
-String splitQRcode() {
+String splitQRcode(int cab) {
   String strTemp = "";
   //
   // Arrays to hold the split parts.
@@ -22,25 +22,25 @@ String splitQRcode() {
   strncpy(part7, (char*)results.content_bytes + 24, 5); // Copy next 5 characters.
   strncpy(part8, (char*)results.content_bytes + 29, 1); // Copy next 1 character.
   //
-  // Drive CAB_A to STOP before setting parameters.
-  cabs[CAB_A].throttle = 0;
-  driveMotor(CAB_A);
+  // Drive cab to STOP before setting parameters.
+  cabs[cab].throttle = 0;
+  driveMotor(cab);
   //
   // Set parameters.
-  strcpy(cabs[CAB_A].engineNumber, part1);
-  strcpy(cabs[CAB_A].roadAbbreviation, part2);
+  strcpy(cabs[cab].engineNumber, part1);
+  strcpy(cabs[cab].roadAbbreviation, part2);
   // Convert charater arrays to integer.
-  cabs[CAB_A].stepValue = atoi(part3); // Step.
-  cabs[CAB_A].minForward = atoi(part4); // Minumum forward.
-  cabs[CAB_A].maxForward = atoi(part5); // Maximum forward.
-  cabs[CAB_A].minReverse = atoi(part6); // Minumum reverse.
-  cabs[CAB_A].maxReverse = atoi(part7); // Maximum reverse.
-  cabs[CAB_A].engineFacing = atoi(part8); // Engine facing.
+  cabs[cab].stepValue = atoi(part3); // Step.
+  cabs[cab].minForward = atoi(part4); // Minumum forward.
+  cabs[cab].maxForward = atoi(part5); // Maximum forward.
+  cabs[cab].minReverse = atoi(part6); // Minumum reverse.
+  cabs[cab].maxReverse = atoi(part7); // Maximum reverse.
+  cabs[cab].engineFacing = atoi(part8); // Engine facing.
   //
-  strTemp = String(cabs[CAB_A].roadAbbreviation);
+  strTemp = String(cabs[cab].roadAbbreviation);
   strTemp.concat(" #");
-  strTemp.concat(cabs[CAB_A].engineNumber);
-  switch(cabs[CAB_A].engineFacing) {
+  strTemp.concat(cabs[cab].engineNumber);
+  switch(cabs[cab].engineFacing) {
     case EAST:
       strTemp.concat("   EAST");
       break;

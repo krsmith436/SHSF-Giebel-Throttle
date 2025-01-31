@@ -121,7 +121,7 @@ void dsplyValues(void) { // This is the main function.
         }
         else {
           if (results.content_length == 30) {
-            strTemp = splitQRcode();
+            strTemp = splitQRcode(CAB_A);
             intToggleCounter = 0;
           }
           else {
@@ -137,16 +137,18 @@ void dsplyValues(void) { // This is the main function.
         for (int i=0; i < NUMBER_OF_CABS; i ++) {
           u8g2.setCursor(0, 4 + rh + i*bh);
           // This will toggle display of engine number and road abbreviation.
-          if (intToggleCounter < 4) {
+          if (intToggleCounter < 75) {
             u8g2.print(cabs[i].engineNumber);
             intToggleCounter += 1;
           }
-          else if(intToggleCounter < 8) {
-            u8g2.print(cabs[i].roadAbbreviation);
-            intToggleCounter += 1;
-          }
           else {
-            intToggleCounter = 0;
+            u8g2.print(cabs[i].roadAbbreviation);
+            if (intToggleCounter == 149) {
+              intToggleCounter = 0;
+            }
+            else {
+              intToggleCounter += 1;
+            }
           }
           //
           //Draw speed bar frame.
