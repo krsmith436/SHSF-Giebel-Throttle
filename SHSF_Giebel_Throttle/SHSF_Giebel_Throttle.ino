@@ -99,8 +99,7 @@ void setup() {
   listTestSlideSwitch.addTask([]{ intTestNumber = (blnTestMode) ? intTestNumber:0; });
   timerLogo.attach(4000, []{ blnLogoTimedOut = true; }, DISPATCH_ONCE);
   timerRefreshDisplay.attach(1000, dsplyValues);
-  timerEngineNumberAbbreviation.attach(4000, []{ blnDsplyEngineNumber = !blnDsplyEngineNumber; });
-  timerEngineNumberAbbreviation.pause(); // This will start after logo display in dsplyValues().
+  timerEngineNumberAbbreviation.attach(3000, []{ blnDsplyEngineNumber = !blnDsplyEngineNumber; });
   timerTestModeSwitch.attach(500, []{ listTestSlideSwitch.next(); });
   huntThrottleButtons.assign("throttle", handleThrottleButtons);
   huntSoundButton.assign("sound", handleSoundButton);
