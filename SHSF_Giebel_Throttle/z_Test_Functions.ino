@@ -49,7 +49,7 @@ String getTestMessageText(bool setTestValue) {
         pwm.setPWMFreq(intTestValue);
       }
       break;
-    case3 : // Throttle minimum
+    case 3 : // Throttle minimum
       intTestValue = map(analogRead(TEST_ANALOG_INPUT), 0, 1023, 100, 1000);
       intTestValue = roundToMultiple(intTestValue,10);
       strTemp = F("Min [Steps]: ");

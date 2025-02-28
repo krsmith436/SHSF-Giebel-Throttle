@@ -122,7 +122,6 @@ void dsplyValues(void) { // This is the main function.
         else {
           if (results.content_length == 30) {
             strTemp = splitQRcode(CAB_A);
-            intToggleCounter = 0;
           }
           else {
             strTemp = getPwmFrequency();
