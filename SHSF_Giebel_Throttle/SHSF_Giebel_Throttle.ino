@@ -47,6 +47,7 @@ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver(PWM_I2C_ADDR);
 //-------------------Tweakly---------------------//
 TickTimer timerLogo;
 TickTimer timerRefreshDisplay;
+TickTimer timerEngineNumberAbbreviation;
 TickTimer timerTestModeSwitch;
 inputHunter huntThrottleButtons;
 inputHunter huntSoundButton;
@@ -59,7 +60,7 @@ bool blnLogoTimedOut = false; // flag for indicating the logo has timed out.
 bool blnTestMode = false; // flag for indicating the Test/Operate slide switch position.
 int intTestNumber = 0; // test number to run in Test mode.
 tiny_code_reader_results_t results = {}; // pointer to QR code read results.
-int intToggleCounter = 0; // Counter to toggle between display of engine number/road abbreviation.
+bool blnDsplyEngineNumber = true; // Flag to toggle between display of engine number road abbreviation.
 //
 void setup() {
   //
@@ -96,8 +97,9 @@ void setup() {
   // Initialize Tweakly.
   listTestSlideSwitch.addTask([]{ blnTestMode = testSlideSwitch.read(); });
   listTestSlideSwitch.addTask([]{ intTestNumber = (blnTestMode) ? intTestNumber:0; });
-  timerLogo.attach(5000, []{ blnLogoTimedOut = true; }, DISPATCH_ONCE);
+  timerLogo.attach(4000, []{ blnLogoTimedOut = true; }, DISPATCH_ONCE);
   timerRefreshDisplay.attach(1000, dsplyValues);
+  timerEngineNumberAbbreviation.attach(3000, []{ blnDsplyEngineNumber = !blnDsplyEngineNumber; });
   timerTestModeSwitch.attach(500, []{ listTestSlideSwitch.next(); });
   huntThrottleButtons.assign("throttle", handleThrottleButtons);
   huntSoundButton.assign("sound", handleSoundButton);
